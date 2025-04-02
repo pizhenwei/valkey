@@ -52,6 +52,8 @@
 #include "lua/debug_lua.h"
 #include "eval.h"
 
+#include "trace/trace_commands.h"
+
 #include <time.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -3735,6 +3737,7 @@ void call(client *c, int flags) {
     else
         duration = ustime() - call_timer;
 
+    lttng_ust_tracepoint(valkey, command_call, real_cmd->declared_name, duration);
     c->duration += duration;
     dirty = server.dirty - dirty;
     if (dirty < 0) dirty = 0;
