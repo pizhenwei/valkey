@@ -1511,6 +1511,8 @@ void acceptCommonHandler(connection *conn, struct ClientFlags flags, char *ip) {
         freeClient(connGetPrivateData(conn));
         return;
     }
+
+    connFmtName(conn);
 }
 
 void freeClientOriginalArgv(client *c) {
