@@ -69,23 +69,21 @@ void latencyAddSample(const char *event, mstime_t latency);
 /* Latency monitoring macros. */
 
 /* Start monitoring an event. We just set the current time. */
-#define latencyStartMonitor(var)            \
-    if (server.latency_monitor_threshold) { \
-        var = mstime();                     \
-    } else {                                \
-        var = 0;                            \
+#define latencyStartMonitor(var) \
+    {                            \
+        var = ustime();          \
     }
 
 /* End monitoring an event, compute the difference with the current time
  * to check the amount of time elapsed. */
-#define latencyEndMonitor(var)              \
-    if (server.latency_monitor_threshold) { \
-        var = mstime() - var;               \
+#define latencyEndMonitor(var) \
+    {                          \
+        var = ustime() - var;  \
     }
 
 /* Add the sample only if the elapsed time is >= to the configured threshold. */
 #define latencyAddSampleIfNeeded(event, var) \
-    if (server.latency_monitor_threshold && (var) >= server.latency_monitor_threshold) latencyAddSample((event), (var));
+    if (server.latency_monitor_threshold && ((var) / 1000) >= server.latency_monitor_threshold) latencyAddSample((event), ((var) / 1000));
 
 /* Remove time from a nested event. */
 #define latencyRemoveNestedEvent(event_var, nested_var) event_var += nested_var;
