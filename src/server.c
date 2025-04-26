@@ -3774,7 +3774,7 @@ void call(client *c, int flags) {
      * a MULTI-EXEC from inside an AOF). */
     if (update_command_stats) {
         char *latency_event = (real_cmd->flags & CMD_FAST) ? "fast-command" : "command";
-        latencyAddSampleIfNeeded(latency_event, duration / 1000);
+        latencyAddSampleIfNeeded(latency_event, duration);
         if (server.execution_nesting == 0) durationAddSample(EL_DURATION_TYPE_CMD, duration);
     }
 
@@ -6569,7 +6569,7 @@ int serverFork(int purpose) {
         server.stat_fork_time = ustime() - start;
         server.stat_fork_rate =
             (double)zmalloc_used_memory() * 1000000 / server.stat_fork_time / (1024 * 1024 * 1024); /* GB per second. */
-        latencyAddSampleIfNeeded("fork", server.stat_fork_time / 1000);
+        latencyAddSampleIfNeeded("fork", server.stat_fork_time);
 
         /* The child_pid and child_type are only for mutually exclusive children.
          * other child types should handle and store their pid's in dedicated variables.

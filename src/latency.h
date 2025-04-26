@@ -71,16 +71,18 @@ void latencyAddSample(const char *event, mstime_t latency);
 /* Latency monitoring macros. */
 
 /* Start monitoring an event. We just set the current time. */
-#define latencyStartMonitor(var) \
-    {                            \
-        var = ustime();          \
+#define latencyStartMonitor(var)                                        \
+    if (server.latency_monitor_threshold || server.lttng_enabled) {     \
+        var = ustime();                                                 \
+    } else {                                                            \
+        var = 0;                                                        \
     }
 
 /* End monitoring an event, compute the difference with the current time
  * to check the amount of time elapsed. */
-#define latencyEndMonitor(var) \
-    {                          \
-        var = ustime() - var;  \
+#define latencyEndMonitor(var)                                          \
+    if (server.latency_monitor_threshold || server.lttng_enabled) {     \
+        var = ustime() - var;                                           \
     }
 
 /* Add LTTng trace if LTTng is enabled */

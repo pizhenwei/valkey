@@ -2,9 +2,16 @@
 
 This directory contains the implementation of tracing using [LTTng](https://lttng.org/) (Linux Trace Toolkit Next Generation).
 
-## LTTng Overview
+## LTTng QuickStart
 
 LTTng is an open source tracing framework for Linux that provides highly efficient and low-overhead tracing capabilities. It allows developers to trace both kernel and user-space applications.
+
+Building Valkey with LTTng support:
+
+```
+USE_LTTNG=yes make
+```
+
 Enable lttng trace events dynamically:
 ```
 ~# lttng destroy valkey
