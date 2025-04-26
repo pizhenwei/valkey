@@ -1888,6 +1888,7 @@ struct valkeyServer {
     int syslog_facility;      /* Syslog facility */
     int crashlog_enabled;     /* Enable signal handler for crashlog.
                                * disable for clean core dumps. */
+    int lttng_enabled;        /* Enable lttng trace. */
     int crashed;              /* True if the server has crashed, used in catClientInfoString
                                * to indicate that no wait for IO threads is needed. */
     int memcheck_enabled;     /* Enable memory check on crash. */

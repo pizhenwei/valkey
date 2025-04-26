@@ -16,7 +16,7 @@ LTTNG_UST_TRACEPOINT_EVENT(
 	valkey_db,
 
 	/* Tracepoint name */
-	expire_del,
+	latency,
 
 	/* Input arguments */
 	LTTNG_UST_TP_ARGS(
@@ -31,7 +31,7 @@ LTTNG_UST_TRACEPOINT_EVENT(
 	)
 )
 
-#define valkey_db_trace(...) lttng_ust_tracepoint(__VA_ARGS__)
+#define valkey_latency_trace(...) lttng_ust_tracepoint(__VA_ARGS__)
 
 #endif /* __VALKEY_TRACE_DB_H__ */
 
@@ -43,10 +43,10 @@ LTTNG_UST_TRACEPOINT_EVENT(
 #define __VALKEY_TRACE_DB_H__
 
 /* avoid compiler warning on empty source file */
-static inline void __valkey_db_trace(void) {
+static inline void __valkey_latency_trace(void) {
 }
 
-#define valkey_db_trace(...) \
+#define valkey_latency_trace(...) \
     do {                     \
     } while (0)
 

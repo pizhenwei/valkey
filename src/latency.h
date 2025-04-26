@@ -34,6 +34,8 @@
 #ifndef __LATENCY_H
 #define __LATENCY_H
 
+#include "trace/trace_db.h"
+
 #define LATENCY_TS_LEN 160 /* History length for every monitored event. */
 
 /* Representation of a latency sample: the sampling time and the latency
@@ -81,9 +83,14 @@ void latencyAddSample(const char *event, mstime_t latency);
         var = ustime() - var;  \
     }
 
-/* Add the sample only if the elapsed time is >= to the configured threshold. */
+/* Add LTTng trace if LTTng is enabled */
+#define latencyAddLttngTraceIfNeeded(event, var) \
+    if (server.lttng_enabled) valkey_latency_trace(valkey_db, latency, (event), (var));
+
+/* Add the sample only if the elapsed time is >= to the configured threshold and add LTTng trace. */
 #define latencyAddSampleIfNeeded(event, var) \
-    if (server.latency_monitor_threshold && ((var) / 1000) >= server.latency_monitor_threshold) latencyAddSample((event), ((var) / 1000));
+    if (server.latency_monitor_threshold && ((var) / 1000) >= server.latency_monitor_threshold) latencyAddSample((event), ((var) / 1000));  \
+    latencyAddLttngTraceIfNeeded(event, var)
 
 /* Remove time from a nested event. */
 #define latencyRemoveNestedEvent(event_var, nested_var) event_var += nested_var;

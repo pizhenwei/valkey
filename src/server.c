@@ -1878,7 +1878,9 @@ void beforeSleep(struct aeEventLoop *eventLoop) {
     if (server.aof_state == AOF_ON || server.aof_state == AOF_WAIT_REWRITE) flushAppendOnlyFile(0);
 
     /* Record time consumption of AOF writing. */
-    durationAddSample(EL_DURATION_TYPE_AOF, getMonotonicUs() - aof_start_time);
+    monotime aof_duration = getMonotonicUs() - aof_start_time;
+    durationAddSample(EL_DURATION_TYPE_AOF, aof_duration);
+    latencyAddLttngTraceIfNeeded("aof-flush", aof_duration);
 
     /* Update the fsynced replica offset.
      * If an initial rewrite is in progress then not all data is guaranteed to have actually been
@@ -1922,9 +1924,11 @@ void beforeSleep(struct aeEventLoop *eventLoop) {
     if (server.el_start > 0) {
         monotime el_duration = getMonotonicUs() - server.el_start;
         durationAddSample(EL_DURATION_TYPE_EL, el_duration);
+        latencyAddLttngTraceIfNeeded("eventloop", el_duration);
     }
     server.el_cron_duration += duration_before_aof + duration_after_write;
     durationAddSample(EL_DURATION_TYPE_CRON, server.el_cron_duration);
+    latencyAddLttngTraceIfNeeded("eventloop-cron", server.el_cron_duration);
     server.el_cron_duration = 0;
     /* Record max command count per cycle. */
     if (server.stat_numcommands > server.el_cmd_cnt_start) {
@@ -3737,7 +3741,9 @@ void call(client *c, int flags) {
     else
         duration = ustime() - call_timer;
 
-    valkey_commands_trace(valkey_commands, command_call, connGetType(c->conn), c->conn->fmtname, real_cmd->declared_name, duration);
+    if (server.lttng_enabled) {
+        valkey_commands_trace(valkey_commands, command_call, connGetType(c->conn), c->conn->fmtname, real_cmd->declared_name, duration);
+    }
     c->duration += duration;
     dirty = server.dirty - dirty;
     if (dirty < 0) dirty = 0;
