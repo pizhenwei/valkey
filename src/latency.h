@@ -71,18 +71,18 @@ void latencyAddSample(const char *event, mstime_t latency);
 /* Latency monitoring macros. */
 
 /* Start monitoring an event. We just set the current time. */
-#define latencyStartMonitor(var)                                        \
-    if (server.latency_monitor_threshold || server.lttng_enabled) {     \
-        var = ustime();                                                 \
-    } else {                                                            \
-        var = 0;                                                        \
+#define latencyStartMonitor(var)                                    \
+    if (server.latency_monitor_threshold || server.lttng_enabled) { \
+        var = ustime();                                             \
+    } else {                                                        \
+        var = 0;                                                    \
     }
 
 /* End monitoring an event, compute the difference with the current time
  * to check the amount of time elapsed. */
-#define latencyEndMonitor(var)                                          \
-    if (server.latency_monitor_threshold || server.lttng_enabled) {     \
-        var = ustime() - var;                                           \
+#define latencyEndMonitor(var)                                      \
+    if (server.latency_monitor_threshold || server.lttng_enabled) { \
+        var = ustime() - var;                                       \
     }
 
 /* Add LTTng trace if LTTng is enabled */
@@ -90,8 +90,8 @@ void latencyAddSample(const char *event, mstime_t latency);
     if (server.lttng_enabled) valkey_latency_trace(valkey_db, latency, (event), (var));
 
 /* Add the sample only if the elapsed time is >= to the configured threshold and add LTTng trace. */
-#define latencyAddSampleIfNeeded(event, var) \
-    if (server.latency_monitor_threshold && ((var) / 1000) >= server.latency_monitor_threshold) latencyAddSample((event), ((var) / 1000));  \
+#define latencyAddSampleIfNeeded(event, var)                                                                                               \
+    if (server.latency_monitor_threshold && ((var) / 1000) >= server.latency_monitor_threshold) latencyAddSample((event), ((var) / 1000)); \
     latencyAddLttngTraceIfNeeded(event, var)
 
 /* Remove time from a nested event. */
