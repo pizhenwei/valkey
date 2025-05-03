@@ -46,7 +46,7 @@ static inline void __valkey_sys_trace(void) {
 }
 
 #define valkey_sys_trace(...) \
-    do {                          \
+    do {                      \
     } while (0)
 
 #endif /* __VALKEY_TRACE_SYS_H__ */

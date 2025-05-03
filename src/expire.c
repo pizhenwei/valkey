@@ -360,6 +360,7 @@ void activeExpireCycle(int type) {
     elapsed = ustime() - start;
     server.stat_expire_cycle_time_used += elapsed;
     latencyAddSampleIfNeeded("expire-cycle", elapsed);
+    valkey_db_trace("valkey_db", "latency", "expire-cycle", elapsed);
 
     /* Update our estimate of keys existing but yet to be expired.
      * Running average with this sample accounting for 5%. */
