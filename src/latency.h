@@ -82,7 +82,6 @@ void latencyAddSample(const char *event, mstime_t latency);
 /* Add the sample only if the elapsed time is >= to the configured threshold and add LTTng trace. */
 #define latencyAddSampleIfNeeded(event, var) \
     if (server.latency_monitor_threshold && ((var) / 1000) >= server.latency_monitor_threshold) latencyAddSample((event), ((var) / 1000));
-// latencyAddLttngTraceIfNeeded(event, var)
 
 /* Remove time from a nested event. */
 #define latencyRemoveNestedEvent(event_var, nested_var) event_var += nested_var;

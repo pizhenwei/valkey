@@ -8,11 +8,19 @@
 #include "trace/trace_server.h"
 #include "trace/trace_commands.h"
 
-#define TRACE_DB (1 << 0)
-#define TRACE_CLUSTER (1 << 1)
-#define TRACE_SYS (1 << 2)
-#define TRACE_AOF (1 << 3)
-#define TRACE_SERVER (1 << 4)
-#define TRACE_COMMANDS (1 << 5)
+typedef struct valkeyTraceMask {
+    unsigned aof : 1;
+    unsigned server : 1;
+    unsigned cluster : 1;
+    unsigned sys : 1;
+    unsigned db : 1;
+    unsigned commands : 1;
+    unsigned reserved : 2;
+} valkeyTraceMask;
+
+extern struct valkeyTraceMask trace_mask;
+
+#define lttngLatencyTraceIfNeeded(type, event, var) \
+    if (trace_mask.type)  valkey_##type##_trace(valkey_##type, "latency", (event), (var));
 
 #endif /* __VALKEY_TRACE_H__ */

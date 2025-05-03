@@ -1216,7 +1216,7 @@ static long long activeDefragTimeProc(struct aeEventLoop *eventLoop, long long i
 
     latencyEndMonitor(latency);
     latencyAddSampleIfNeeded("active-defrag-cycle", latency);
-    valkey_db_trace("valkey_db", "latency", "active-defrag-cycle", latency);
+    lttngLatencyTraceIfNeeded(db, "active-defrag-cycle", latency);
     if (haveMoreWork) {
         return computeDelayMs(endtime);
     } else {

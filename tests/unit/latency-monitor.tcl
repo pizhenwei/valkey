@@ -193,6 +193,12 @@ tags {"needs:debug"} {
         catch {r LATENCY help xxx} e
         assert_match "*wrong number of arguments for 'latency|help' command" $e
     }
+    
+    test {LATENCY Lttng Configuration} {
+        r config set lttng-mask "aof,server,cluster,sys,db,commands"
+        assert {[r config get lttng-mask] eq "aof,server,cluster,sys,db,commands"}
+        r config set lttng-mask "acd"
+    }
 }
 
 start_cluster 1 1 {tags {"latency-monitor cluster external:skip needs:latency"} overrides {latency-monitor-threshold 1}} {

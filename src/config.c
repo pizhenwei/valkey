@@ -3150,6 +3150,55 @@ static int applyClientMaxMemoryUsage(const char **err) {
     return 1;
 }
 
+static int setLttngMask(standardConfig *config, sds *argv, int argc, const char **err) {
+    UNUSED(config);
+    if (argc != 1) {
+        *err = "wrong number of arguments";
+        return 0;
+    }
+
+    struct valkeyTraceMask mask = {0};
+    int i, totlines;
+    sds *lines = sdssplitlen(argv[0], sdslen(argv[0]), ",", 1, &totlines);
+    for (i = 0; i < totlines; i++) {
+        if (!strcasecmp(lines[i], "aof")) {
+            mask.aof = 1;
+        } else if (!strcasecmp(lines[i], "server")) {
+            mask.server = 1;
+        } else if (!strcasecmp(lines[i], "cluster")) {
+            mask.cluster = 1;
+        } else if (!strcasecmp(lines[i], "sys")) {
+            mask.sys = 1;
+        } else if (!strcasecmp(lines[i], "db")) {
+            mask.db = 1;
+        } else if (!strcasecmp(lines[i], "commands")) {
+            mask.commands = 1;
+        } else {
+            *err = "lttng mask should belong [server,aof,cluster,sys,db,commands]";
+            goto configerr;
+        }
+    }
+    trace_mask = mask;
+    sdsfreesplitres(lines, totlines);
+    sdscpylen(server.lttng_trace_mask, argv[0], sdslen(argv[0]));
+    return 1;
+configerr:
+    sdsfreesplitres(lines, totlines);
+    return 0;
+}
+
+static sds getLttngMask(standardConfig *config) {
+    UNUSED(config);
+    return server.lttng_trace_mask;
+}
+
+void rewriteLttngMask(standardConfig *config,
+    const char *name,
+    struct rewriteConfigState *state) {
+    UNUSED(config);
+    rewriteConfigRewriteLine(state, name, server.lttng_trace_mask, 1);
+}
+
 standardConfig static_configs[] = {
     /* Bool configs */
     createBoolConfig("rdbchecksum", NULL, IMMUTABLE_CONFIG, server.rdb_checksum, 1, NULL, NULL),
@@ -3394,6 +3443,7 @@ standardConfig static_configs[] = {
     createSpecialConfig("rdma-bind", NULL, MODIFIABLE_CONFIG | MULTI_ARG_CONFIG, setConfigRdmaBindOption, getConfigRdmaBindOption, rewriteConfigRdmaBindOption, applyRdmaBind),
     createSpecialConfig("replicaof", "slaveof", IMMUTABLE_CONFIG | MULTI_ARG_CONFIG, setConfigReplicaOfOption, getConfigReplicaOfOption, rewriteConfigReplicaOfOption, NULL),
     createSpecialConfig("latency-tracking-info-percentiles", NULL, MODIFIABLE_CONFIG | MULTI_ARG_CONFIG, setConfigLatencyTrackingInfoPercentilesOutputOption, getConfigLatencyTrackingInfoPercentilesOutputOption, rewriteConfigLatencyTrackingInfoPercentilesOutputOption, NULL),
+    createSpecialConfig("lttng-mask", NULL, MODIFIABLE_CONFIG | MULTI_ARG_CONFIG, setLttngMask, getLttngMask, rewriteLttngMask, NULL),
 
     /* NULL Terminator, this is dropped when we convert to the runtime array. */
     {NULL},
