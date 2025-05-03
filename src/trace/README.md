@@ -53,3 +53,34 @@ About performance overhead (valkey-benchmark -t get -n 1000000 --threads 4):
 3> lttng builtin, trace commands: 266595.59 requests per second (about ~6.6 overhead)
 
 Generally valkey-server would not run in full utilization, the overhead is acceptable.
+
+## LTTng Events
+
+| event                    | provider |
+| -------------------------- | ---------- |
+| rdb-unlink-temp-file     | sys      |
+| fork                     | sys      |
+| command-unblocking       | server   |
+| while-blocked-cron       | server   |
+| module-acquire-GIL       | server   |
+| expire-del               | db       |
+| active-defrag-cycle      | db       |
+| eviction-del             | db       |
+| eviction-lazyfree        | db       |
+| eviction-cycle           | db       |
+| expire-cycle             | db       |
+| cluster-config-open      | cluster  |
+| cluster-config-write     | cluster  |
+| cluster-config-fsync     | cluster  |
+| cluster-config-rename    | cluster  |
+| cluster-config-dir-fsync | cluster  |
+| cluster-config-close     | cluster  |
+| cluster-config-unlink    | cluster  |
+| aof-write-pending-fsync  | aof      |
+| aof-write-active-child   | aof      |
+| aof-write-alone          | aof      |
+| aof-write                | aof      |
+| aof-fsync-always         | aof      |
+| aof-fstat                | aof      |
+| aof-rename               | aof      |
+| aof-rename               | aof      |
