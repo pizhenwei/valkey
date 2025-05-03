@@ -193,11 +193,14 @@ tags {"needs:debug"} {
         catch {r LATENCY help xxx} e
         assert_match "*wrong number of arguments for 'latency|help' command" $e
     }
-    
+
     test {LATENCY Lttng Configuration} {
-        r config set lttng-mask "aof,server,cluster,sys,db,commands"
-        assert {[r config get lttng-mask] eq "aof,server,cluster,sys,db,commands"}
-        r config set lttng-mask "acd"
+        r config set lttng-mask ""
+        r config set lttng-mask "aof server cluster sys db commands"
+        assert_equal [lindex [r config get lttng-mask] 1] "aof server cluster sys db commands"
+        catch {r config set lttng-mask "test"} e
+        assert_match "*lttng mask should belong*" $e
+        r config set lttng-mask ""
     }
 }
 

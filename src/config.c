@@ -3152,26 +3152,20 @@ static int applyClientMaxMemoryUsage(const char **err) {
 
 static int setLttngMask(standardConfig *config, sds *argv, int argc, const char **err) {
     UNUSED(config);
-    if (argc != 1) {
-        *err = "wrong number of arguments";
-        return 0;
-    }
 
     struct valkeyTraceMask mask = {0};
-    int i, totlines;
-    sds *lines = sdssplitlen(argv[0], sdslen(argv[0]), ",", 1, &totlines);
-    for (i = 0; i < totlines; i++) {
-        if (!strcasecmp(lines[i], "aof")) {
+    for (int i = 0; i < argc; i++) {
+        if (!strcasecmp(argv[i], "aof")) {
             mask.aof = 1;
-        } else if (!strcasecmp(lines[i], "server")) {
+        } else if (!strcasecmp(argv[i], "server")) {
             mask.server = 1;
-        } else if (!strcasecmp(lines[i], "cluster")) {
+        } else if (!strcasecmp(argv[i], "cluster")) {
             mask.cluster = 1;
-        } else if (!strcasecmp(lines[i], "sys")) {
+        } else if (!strcasecmp(argv[i], "sys")) {
             mask.sys = 1;
-        } else if (!strcasecmp(lines[i], "db")) {
+        } else if (!strcasecmp(argv[i], "db")) {
             mask.db = 1;
-        } else if (!strcasecmp(lines[i], "commands")) {
+        } else if (!strcasecmp(argv[i], "commands")) {
             mask.commands = 1;
         } else {
             *err = "lttng mask should belong [server,aof,cluster,sys,db,commands]";
@@ -3179,24 +3173,32 @@ static int setLttngMask(standardConfig *config, sds *argv, int argc, const char 
         }
     }
     trace_mask = mask;
-    sdsfreesplitres(lines, totlines);
-    sdscpylen(server.lttng_trace_mask, argv[0], sdslen(argv[0]));
+    sdsclear(server.lttng_trace_mask);
+    for (int i = 0; i < argc; i++) {
+        server.lttng_trace_mask = sdscatprintf(server.lttng_trace_mask, "%s", argv[i]);
+        if (i != argc - 1) {
+            server.lttng_trace_mask = sdscatlen(server.lttng_trace_mask, " ", 1);
+        }
+    }
     return 1;
 configerr:
-    sdsfreesplitres(lines, totlines);
     return 0;
 }
 
 static sds getLttngMask(standardConfig *config) {
     UNUSED(config);
-    return server.lttng_trace_mask;
+    return sdsdup(server.lttng_trace_mask);
 }
 
 void rewriteLttngMask(standardConfig *config,
     const char *name,
     struct rewriteConfigState *state) {
     UNUSED(config);
-    rewriteConfigRewriteLine(state, name, server.lttng_trace_mask, 1);
+    if (sdslen(server.lttng_trace_mask) == 0) {
+        rewriteConfigMarkAsProcessed(state, name);
+        return;
+    }
+    rewriteConfigRewriteLine(state, name, sdsdup(server.lttng_trace_mask), 1);
 }
 
 standardConfig static_configs[] = {
@@ -3252,6 +3254,7 @@ standardConfig static_configs[] = {
     createBoolConfig("hide-user-data-from-log", NULL, MODIFIABLE_CONFIG, server.hide_user_data_from_log, 1, NULL, NULL),
     createBoolConfig("import-mode", NULL, DEBUG_CONFIG | MODIFIABLE_CONFIG, server.import_mode, 0, NULL, NULL),
     createBoolConfig("auto-failover-on-shutdown", NULL, MODIFIABLE_CONFIG, server.auto_failover_on_shutdown, 0, NULL, NULL),
+    createBoolConfig("lttng-enabled", NULL, MODIFIABLE_CONFIG, server.lttng_enabled, 0, NULL, NULL),
 
     /* String Configs */
     createStringConfig("aclfile", NULL, IMMUTABLE_CONFIG, ALLOW_EMPTY_STRING, server.acl_filename, "", NULL, NULL),
