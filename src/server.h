@@ -81,6 +81,7 @@ typedef long long ustime_t; /* microsecond time type. */
 #include "rax.h"        /* Radix tree */
 #include "connection.h" /* Connection abstraction */
 #include "memory_prefetch.h"
+#include "trace/trace.h"
 
 #define dismissMemory zmadvise_dontneed
 
@@ -1888,7 +1889,6 @@ struct valkeyServer {
     int syslog_facility;      /* Syslog facility */
     int crashlog_enabled;     /* Enable signal handler for crashlog.
                                * disable for clean core dumps. */
-    int lttng_enabled;        /* Enable lttng trace. */
     int crashed;              /* True if the server has crashed, used in catClientInfoString
                                * to indicate that no wait for IO threads is needed. */
     int memcheck_enabled;     /* Enable memory check on crash. */
@@ -2107,6 +2107,8 @@ struct valkeyServer {
     /* Latency monitor */
     long long latency_monitor_threshold;
     dict *latency_events;
+    int lttng_enabled;
+    sds lttng_trace_mask;
     /* ACLs */
     char *acl_filename;           /* ACL Users file. NULL if not configured. */
     unsigned long acllog_max_len; /* Maximum length of the ACL LOG list. */
