@@ -25,7 +25,7 @@ extern struct valkeyTraceMask trace_mask;
     if (server.lttng_enabled && trace_mask.type) valkey_##type##_trace(valkey_##type, "latency", (event), (var));
 #else
 #define lttngLatencyTraceIfNeeded(type, event, var) \
-    do {                      \
+    do {                                            \
     } while (0)
 #endif
 
